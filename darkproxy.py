@@ -411,21 +411,25 @@ class ThreeProxyManager:
             except asyncio.TimeoutError:
                 self.proxy_process.kill()
                 await self.proxy_process.wait()
-            except:
-                pass
-            self.proxy_process = None
+            finally:
+                self.proxy_process = None
 
         # Убиваем все процессы 3proxy
-        try:
-            process = await asyncio.create_subprocess_exec(
-                'pkill', '-f', '3proxy',
-                stdout=asyncio.subprocess.DEVNULL,
-                stderr=asyncio.subprocess.DEVNULL
-            )
-            await process.wait()
-        except:
-            pass
+        # try:
+        #     process = await asyncio.create_subprocess_exec(
+        #         'pkill', '-f', '3proxy',
+        #         stdout=asyncio.subprocess.DEVNULL,
+        #         stderr=asyncio.subprocess.DEVNULL
+        #     )
+        #     await process.wait()
+        # except:
+        #     pass
 
+        await asyncio.create_subprocess_exec(
+            'pkill', '-f', '3proxy',
+            stdout=asyncio.subprocess.DEVNULL,
+            stderr=asyncio.subprocess.DEVNULL
+        )
         logger.info("3proxy остановлен")
 
     def is_running(self) -> bool:
