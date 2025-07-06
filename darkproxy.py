@@ -281,6 +281,16 @@ class ThreeProxyManager:
         proxy_dir = self.work_dir / "3proxy"
         proxy_dir.mkdir(parents=True, exist_ok=True)
 
+        # Принудительно останавливаем старые процессы
+        await asyncio.create_subprocess_exec(
+            'pkill', '-f', '3proxy',
+            stdout=asyncio.subprocess.DEVNULL,
+            stderr=asyncio.subprocess.DEVNULL
+        )
+
+        # Ожидаем, чтобы файл освободился
+        await asyncio.sleep(1)
+
         # Скачиваем и собираем 3proxy
         temp_dir = Path(tempfile.mkdtemp())
         try:
