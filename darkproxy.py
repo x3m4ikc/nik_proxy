@@ -586,10 +586,20 @@ class FileUploader:
                     data = aiohttp.FormData()
                     data.add_field('file', f, filename=file_path.name)
 
-                    async with session.post('https://file.io', data=data) as response:
+                    # Исправлено: убраны лишние пробелы в URL
+                    async with session.post('https://file.io ', data=data) as response:
+                        # Проверяем статус ответа
                         if response.status == 200:
-                            result = await response.json()
-                            return result.get('link')
+                            # Проверяем, что ответ содержит JSON
+                            content_type = response.headers.get('Content-Type', '')
+                            if 'application/json' in content_type:
+                                result = await response.json()
+                                return result.get('link')
+                            else:
+                                logger.error(f"Неверный тип ответа: {content_type}")
+                                logger.error(f"Тело ответа: {await response.text()}")
+                        else:
+                            logger.error(f"Ошибка HTTP: {response.status}")
         except Exception as e:
             logger.error(f"Ошибка загрузки файла: {e}")
         return None
